@@ -1,6 +1,6 @@
 package cache
 
-import common "product-catalog-service/service/common"
+import common "github.com/psuman/go-training/service/common"
 
 //CacheFinder retrieves item with productId from cache
 type CacheFinder interface {

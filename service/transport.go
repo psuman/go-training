@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	common "product-catalog-service/service/common"
+
+	common "github.com/psuman/go-training/service/common"
 
 	"github.com/go-kit/kit/endpoint"
 )

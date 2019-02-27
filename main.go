@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	service "product-catalog-service/service"
-	cache "product-catalog-service/service/cache"
-	persistence "product-catalog-service/service/persistence"
+
+	persistence "github.com/psuman/go-training/service/persistence"
+
+	cache "github.com/psuman/go-training/service/cache"
+
+	service "github.com/psuman/go-training/service"
 
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"

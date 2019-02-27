@@ -1,6 +1,6 @@
 package persistence
 
-import common "product-catalog-service/service/common"
+import common "github.com/psuman/go-training/service/common"
 
 //ItemDao retrieves item with productId from database
 type ItemDao interface {

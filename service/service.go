@@ -5,9 +5,9 @@ import (
 	"fmt"
 )
 
-import common "product-catalog-service/service/common"
-import cache "product-catalog-service/service/cache"
-import persistence "product-catalog-service/service/persistence"
+import common "github.com/psuman/go-training/service/common"
+import cache "github.com/psuman/go-training/service/cache"
+import persistence "github.com/psuman/go-training/service/persistence"
 
 // ErrEmpty thrown when productId is empty
 var ErrEmpty = errors.New("empty Product ID")
