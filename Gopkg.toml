@@ -1,0 +1,15 @@
+# Gopkg.toml example
+
+[[constraint]]
+   name = "github.com/go-kit/kit"
+   version = "0.8.0"
+
+
+#[[constraint]]
+#   name = "github.com/prometheus/client_golang"
+#   version = "0.9.2"
+
+
+[prune]
+  go-tests = true
+  unused-packages = true
