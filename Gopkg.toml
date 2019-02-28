@@ -13,3 +13,11 @@
 [prune]
   go-tests = true
   unused-packages = true
+
+[[constraint]]
+  name = "github.com/go-redis/redis"
+  version = "6.15.2"
+
+[[constraint]]
+  name = "go.mongodb.org/mongo-driver"
+  version = "0.3.0"
