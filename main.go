@@ -26,8 +26,11 @@ func main() {
 	logger = log.NewLogfmtLogger(os.Stderr)
 
 	var svc service.FindItemService
-	svc = service.FindItemInCatalogService{CacheFinder: cache.RedisCacheFinder{},
-		ItemDao: persistence.MongoItemDao{}}
+
+	cacheFinder := cache.Initialize("localhost:6379")
+	dao := persistence.Initialize("mongodb://localhost:27017")
+	svc = service.FindItemInCatalogService{CacheFinder: cacheFinder,
+		ItemDao: dao}
 
 	findItemHandler := httptransport.NewServer(
 		service.MakeFindItemEndPoint(svc),
