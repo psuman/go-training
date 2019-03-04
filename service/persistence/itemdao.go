@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -48,6 +49,7 @@ func (dao MongoItemDao) Close() {
 
 //FindItem retrieves item from Mongo database
 func (dao MongoItemDao) FindItem(ProductID string) (common.ProductDetails, error) {
+	fmt.Println("Inside Mongo Dao")
 	collection := dao.mongoClient.Database("test").Collection("products")
 	filter := bson.D{{"productId", ProductID}}
 	var result common.ProductDetails

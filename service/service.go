@@ -3,11 +3,12 @@ package service
 import (
 	"errors"
 	"fmt"
-)
 
-import common "github.com/psuman/go-training/service/common"
-import cache "github.com/psuman/go-training/service/cache"
-import persistence "github.com/psuman/go-training/service/persistence"
+	cache "github.com/psuman/go-training/service/cache"
+	common "github.com/psuman/go-training/service/common"
+
+	persistence "github.com/psuman/go-training/service/persistence"
+)
 
 // ErrEmpty thrown when productId is empty
 var ErrEmpty = errors.New("empty Product ID")
@@ -39,6 +40,7 @@ func (svc FindItemInCatalogService) FindItem(prodID string) (common.ProductDetai
 
 	if itemFromCache.ProdID == "" {
 		itemFromDb, _ = svc.ItemDao.FindItem(prodID)
+		svc.CacheFinder.PutItemInCache(prodID, itemFromDb)
 		return itemFromDb, nil
 	}
 
