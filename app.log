@@ -1,5 +1,8 @@
-ts=2019-03-04T11:11:44.893431559Z transport=http address=:9090 msg=listening
-ts=2019-03-04T11:11:57.570185223Z req=a101001
-ts=2019-03-04T11:11:57.570409583Z val="{\"ProdID\":\"a101001\",\"Name\":\"dfgdg\",\"Desc\":\"dfg\",\"Quantity\":10}"
-ts=2019-03-04T11:11:57.570484215Z Itemfromcache=a101001
-ts=2019-03-04T11:11:57.570497682Z founditemincache=(MISSING)
+ts=2019-03-04T15:21:16.822078225Z transport=http address=:9090 msg=listening
+ts=2019-03-04T15:21:37.409021439Z req=a101001
+ts=2019-03-04T15:21:37.40933423Z val="{\"ProdID\":\"a101001\",\"Name\":\"dfgdg\",\"Desc\":\"dfg\",\"Quantity\":10}"
+ts=2019-03-04T15:21:37.409496456Z ITEM_FOUND_IN_CACHE=a101001
+ts=2019-03-04T15:21:48.467342508Z req=a101001
+ts=2019-03-04T15:21:48.467572454Z val="{\"ProdID\":\"a101001\",\"Name\":\"dfgdg\",\"Desc\":\"dfg\",\"Quantity\":10}"
+ts=2019-03-04T15:21:48.467613947Z ITEM_FOUND_IN_CACHE=a101001
+ts=2019-03-04T15:25:18.939668254Z terminated=interrupt

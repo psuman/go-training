@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"time"
 
 	"github.com/go-kit/kit/log"
 
@@ -9,10 +10,44 @@ import (
 	common "github.com/psuman/go-training/service/common"
 
 	persistence "github.com/psuman/go-training/service/persistence"
+
+	"github.com/go-kit/kit/metrics"
 )
 
 // ErrEmpty thrown when productId is empty
 var ErrEmpty = errors.New("empty Product ID")
+
+type MetricsMiddleware struct {
+	RequestCount   metrics.Counter
+	RequestLatency metrics.Histogram
+	Next           ItemService
+}
+
+func (mw MetricsMiddleware) FindItem(req findItemRequest) findItemResponse {
+	defer func(begin time.Time) {
+		lvs := []string{"method", "FindItem", "error", "false"}
+		mw.RequestCount.With(lvs...).Add(1)
+		mw.RequestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	res := mw.Next.FindItem(req)
+	return res
+}
+
+func (mw MetricsMiddleware) AddItem(req addItemRequest) addItemResponse {
+	defer func(begin time.Time) {
+		lvs := []string{"method", "AddItem", "error", "false"}
+		mw.RequestCount.With(lvs...).Add(1)
+		mw.RequestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	res := mw.Next.AddItem(req)
+	return res
+}
+
+func (mw MetricsMiddleware) Close() {
+	mw.Next.Close()
+}
 
 // ItemService finds item service retreives item with given product id
 // When failed to retrieve item it will return an error

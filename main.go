@@ -15,7 +15,10 @@ import (
 	service "github.com/psuman/go-training/service"
 
 	"github.com/go-kit/kit/log"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	httptransport "github.com/go-kit/kit/transport/http"
+	stdprometheus "github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -35,6 +38,22 @@ func main() {
 	logger = log.NewLogfmtLogger(logFile)
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 
+	fieldKeys := []string{"method", "error"}
+
+	requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
+		Namespace: "my_group",
+		Subsystem: "item_service",
+		Name:      "request_count",
+		Help:      "Number of requests received.",
+	}, fieldKeys)
+
+	requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+		Namespace: "my_group",
+		Subsystem: "item_service",
+		Name:      "request_latency_microseconds",
+		Help:      "Total duration of requests in microseconds.",
+	}, fieldKeys)
+
 	var svc service.ItemService
 
 	cacheFinder := cache.RedisCacheFinder{}
@@ -45,6 +64,8 @@ func main() {
 
 	svc = service.ItemCatalogService{CacheFinder: cacheFinder,
 		ItemDao: dao, Logger: logger}
+
+	svc = service.MetricsMiddleware{requestCount, requestLatency, svc}
 
 	findItemHandler := httptransport.NewServer(
 		service.MakeFindItemEndPoint(svc),
@@ -60,7 +81,7 @@ func main() {
 
 	http.Handle("/find-item", findItemHandler)
 	http.Handle("/add-item", addItemHandler)
-	// http.Handle("/metrics", promhttp.Handler())
+	http.Handle("/metrics", promhttp.Handler())
 
 	errs := make(chan error, 2)
 
