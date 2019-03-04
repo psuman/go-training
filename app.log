@@ -1,0 +1,5 @@
+ts=2019-03-04T11:11:44.893431559Z transport=http address=:9090 msg=listening
+ts=2019-03-04T11:11:57.570185223Z req=a101001
+ts=2019-03-04T11:11:57.570409583Z val="{\"ProdID\":\"a101001\",\"Name\":\"dfgdg\",\"Desc\":\"dfg\",\"Quantity\":10}"
+ts=2019-03-04T11:11:57.570484215Z Itemfromcache=a101001
+ts=2019-03-04T11:11:57.570497682Z founditemincache=(MISSING)

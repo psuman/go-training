@@ -52,11 +52,9 @@ func (svc ItemCatalogService) FindItem(req findItemRequest) findItemResponse {
 
 	itemFromCache, err := svc.CacheFinder.FindItemInCache(req.ProdID)
 
-	svc.Logger.Log("Item from cache", itemFromCache.ProdID)
-
 	if err != nil {
 		itemFromDb, err := svc.ItemDao.FindItem(req.ProdID)
-		svc.Logger.Log("Item from db", itemFromDb.ProdID)
+		svc.Logger.Log("ITEM_LOADED_FROM_DB", itemFromDb.ProdID)
 
 		if err != nil {
 			return findItemResponse{Err: "Product not found"}
@@ -66,7 +64,7 @@ func (svc ItemCatalogService) FindItem(req findItemRequest) findItemResponse {
 		return findItemResponse{ProdDetails: itemFromDb}
 	}
 
-	svc.Logger.Log("found item in cache")
+	svc.Logger.Log("ITEM_FOUND_IN_CACHE", itemFromCache.ProdID)
 
 	return findItemResponse{ProdDetails: itemFromCache}
 

@@ -2,7 +2,6 @@ package persistence
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-kit/kit/log"
@@ -47,29 +46,6 @@ func (dao MongoItemDao) Initialize(connUri string, logger log.Logger) MongoItemD
 func (dao MongoItemDao) Close() error {
 	err := dao.mongoClient.Disconnect(context.TODO())
 	return err
-}
-
-func (dao MongoItemDao) FindAll() error {
-	collection := dao.mongoClient.Database("test").Collection("products")
-	filter := bson.M{"ProdID": "a330"}
-	var results []*common.ProductDetails
-
-	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-	cur, _ := collection.Find(ctx, filter)
-
-	for cur.Next(context.Background()) {
-
-		// create a value into which the single document can be decoded
-		var elem common.ProductDetails
-		err := cur.Decode(&elem)
-		if err != nil {
-			dao.logger.Log("dao_find_all_error", err.Error())
-		}
-		results = append(results, &elem)
-		fmt.Printf("Product Id:%s \n", elem.ProdID)
-	}
-
-	return nil
 }
 
 //FindItem retrieves item from Mongo database

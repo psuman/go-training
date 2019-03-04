@@ -25,7 +25,14 @@ func main() {
 	flag.Parse()
 
 	var logger log.Logger
-	logger = log.NewLogfmtLogger(os.Stderr)
+
+	logFile, err := os.Create("app.log")
+
+	if err != nil {
+		panic(err)
+	}
+
+	logger = log.NewLogfmtLogger(logFile)
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 
 	var svc service.ItemService
@@ -51,12 +58,10 @@ func main() {
 		service.EncodeResponse,
 	)
 
-	fmt.Println("inside service")
 	http.Handle("/find-item", findItemHandler)
 	http.Handle("/add-item", addItemHandler)
 	// http.Handle("/metrics", promhttp.Handler())
 
-	dao.FindAll()
 	errs := make(chan error, 2)
 
 	go func() {
