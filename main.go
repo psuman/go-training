@@ -25,11 +25,11 @@ func main() {
 	var logger log.Logger
 	logger = log.NewLogfmtLogger(os.Stderr)
 
-	var svc service.FindItemService
+	var svc service.ItemService
 
 	cacheFinder := cache.Initialize("localhost:6379")
 	dao := persistence.Initialize("mongodb://localhost:27017")
-	svc = service.FindItemInCatalogService{CacheFinder: cacheFinder,
+	svc = service.ItemCatalogService{CacheFinder: cacheFinder,
 		ItemDao: dao}
 
 	findItemHandler := httptransport.NewServer(
@@ -38,8 +38,15 @@ func main() {
 		service.EncodeResponse,
 	)
 
+	addItemHandler := httptransport.NewServer(
+		service.MakeAddItemEndPoint(svc),
+		service.DecodeAddItemRequest,
+		service.EncodeResponse,
+	)
+
 	fmt.Println("inside service")
 	http.Handle("/find-item", findItemHandler)
+	http.Handle("/add-item", addItemHandler)
 	// http.Handle("/metrics", promhttp.Handler())
 	logger.Log("err", http.ListenAndServe(*listen, nil))
 	fmt.Println("after service")
