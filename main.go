@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	persistence "github.com/psuman/go-training/service/persistence"
 
@@ -24,13 +26,18 @@ func main() {
 
 	var logger log.Logger
 	logger = log.NewLogfmtLogger(os.Stderr)
+	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 
 	var svc service.ItemService
 
-	cacheFinder := cache.Initialize("localhost:6379")
-	dao := persistence.Initialize("mongodb://localhost:27017")
+	cacheFinder := cache.RedisCacheFinder{}
+	cacheFinder = cacheFinder.Initialize("localhost:6379", logger)
+
+	dao := persistence.MongoItemDao{}
+	dao = dao.Initialize("mongodb://localhost:27017", logger)
+
 	svc = service.ItemCatalogService{CacheFinder: cacheFinder,
-		ItemDao: dao}
+		ItemDao: dao, Logger: logger}
 
 	findItemHandler := httptransport.NewServer(
 		service.MakeFindItemEndPoint(svc),
@@ -48,6 +55,24 @@ func main() {
 	http.Handle("/find-item", findItemHandler)
 	http.Handle("/add-item", addItemHandler)
 	// http.Handle("/metrics", promhttp.Handler())
-	logger.Log("err", http.ListenAndServe(*listen, nil))
-	fmt.Println("after service")
+
+	errs := make(chan error, 2)
+
+	go func() {
+		logger.Log("transport", "http", "address", *listen, "msg", "listening")
+		errs <- http.ListenAndServe(*listen, nil)
+	}()
+
+	go func() {
+		c := make(chan os.Signal)
+		signal.Notify(c, syscall.SIGINT)
+		errs <- fmt.Errorf("%s", <-c)
+	}()
+
+	logger.Log("terminated", <-errs)
+
+	defer func() {
+		svc.Close()
+	}()
+
 }

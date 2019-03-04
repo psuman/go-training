@@ -2,9 +2,9 @@ package persistence
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"time"
+
+	"github.com/go-kit/kit/log"
 
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/bson/primitive"
@@ -17,15 +17,17 @@ import (
 type ItemDao interface {
 	FindItem(ProductID string) (common.ProductDetails, error)
 	AddItem(productDetails common.ProductDetails) (string, error)
+	Close() error
 }
 
 //MongoItemDao retrieves item with productId from mongo database
 type MongoItemDao struct {
 	mongoClient *mongo.Client
+	logger      log.Logger
 }
 
 // Initialize Initialized connection to mongodb
-func Initialize(connUri string) MongoItemDao {
+func (dao MongoItemDao) Initialize(connUri string, logger log.Logger) MongoItemDao {
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	client, err := mongo.Connect(ctx, connUri)
@@ -35,29 +37,24 @@ func Initialize(connUri string) MongoItemDao {
 		panic(err)
 	}
 
-	mongoDao := MongoItemDao{}
-	mongoDao.mongoClient = client
-	return mongoDao
+	dao.mongoClient = client
+	dao.logger = logger
+	return dao
 }
 
 // Close closes mongo db connection
-func (dao MongoItemDao) Close() {
+func (dao MongoItemDao) Close() error {
 	err := dao.mongoClient.Disconnect(context.TODO())
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	return err
 }
 
 //FindItem retrieves item from Mongo database
 func (dao MongoItemDao) FindItem(ProductID string) (common.ProductDetails, error) {
-	fmt.Println("Inside Mongo Dao")
 	collection := dao.mongoClient.Database("test").Collection("products")
 	filter := bson.D{{"ProdID", ProductID}}
 	var result common.ProductDetails
 	err := collection.FindOne(context.TODO(), filter).Decode(&result)
 	if err != nil {
-		fmt.Println("Could not find item in mongo")
 		return common.ProductDetails{}, err
 	}
 
@@ -66,14 +63,12 @@ func (dao MongoItemDao) FindItem(ProductID string) (common.ProductDetails, error
 
 //AddItem adda item to Mongo database
 func (dao MongoItemDao) AddItem(productDetails common.ProductDetails) (string, error) {
-	fmt.Println("Inside Mongo Dao")
 	collection := dao.mongoClient.Database("test").Collection("products")
 	doc := bson.D{{"ProdID", productDetails.ProdID}, {"ProdName", productDetails.ProdName}, {"ProdDesc", productDetails.ProdDesc}, {"Quantity", productDetails.Quantity}}
 
 	res, err := collection.InsertOne(context.TODO(), doc)
 
 	if err != nil {
-		fmt.Println("Failed to add item to mongo")
 		return "", err
 	}
 

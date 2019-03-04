@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/go-kit/kit/log"
+
 	"github.com/go-redis/redis"
 	common "github.com/psuman/go-training/service/common"
 )
@@ -13,14 +15,16 @@ import (
 type CacheFinder interface {
 	FindItemInCache(ProductID string) (common.ProductDetails, error)
 	PutItemInCache(ProductId string, ProductDetails common.ProductDetails) error
+	Close() error
 }
 
 //RedisCacheFinder retrieves item with productId from redis cache
 type RedisCacheFinder struct {
 	redisClient *redis.Client
+	logger      log.Logger
 }
 
-func Initialize(connUrl string) RedisCacheFinder {
+func (cacheFinder RedisCacheFinder) Initialize(connUrl string, logger log.Logger) RedisCacheFinder {
 	client := redis.NewClient(&redis.Options{
 		Addr:     connUrl,
 		Password: "", // no password set
@@ -33,13 +37,14 @@ func Initialize(connUrl string) RedisCacheFinder {
 		panic(err)
 	}
 
-	cacheFinder := RedisCacheFinder{}
 	cacheFinder.redisClient = client
-
+	cacheFinder.logger = logger
 	return cacheFinder
 }
 
-func (cacheFinder RedisCacheFinder) close() error {
+func (cacheFinder RedisCacheFinder) Close() error {
+	fmt.Println("Inside redis cache Close")
+
 	err := cacheFinder.redisClient.Close()
 	if err != nil {
 		return err
