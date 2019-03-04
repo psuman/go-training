@@ -43,29 +43,36 @@ func (svc ItemCatalogService) AddItem(req addItemRequest) addItemResponse {
 // FindItem retrieves item details from redis cache if exists. If not loads item from mongo and cache it in Redis
 // and return item details as response
 func (svc ItemCatalogService) FindItem(req findItemRequest) findItemResponse {
+	svc.Logger.Log("req", req.ProdID)
 	if req.ProdID == "" {
 		return findItemResponse{Err: "ProductId is empty"}
 	}
 
 	var itemFromCache common.ProductDetails
 
-	itemFromCache, _ = svc.CacheFinder.FindItemInCache(req.ProdID)
+	itemFromCache, err := svc.CacheFinder.FindItemInCache(req.ProdID)
 
-	if itemFromCache.ProdID == "" {
+	svc.Logger.Log("Item from cache", itemFromCache.ProdID)
+
+	if err != nil {
 		itemFromDb, err := svc.ItemDao.FindItem(req.ProdID)
+		svc.Logger.Log("Item from db", itemFromDb.ProdID)
+
 		if err != nil {
 			return findItemResponse{Err: "Product not found"}
 		}
 
 		svc.CacheFinder.PutItemInCache(req.ProdID, itemFromDb)
-
 		return findItemResponse{ProdDetails: itemFromDb}
 	}
+
+	svc.Logger.Log("found item in cache")
 
 	return findItemResponse{ProdDetails: itemFromCache}
 
 }
 
+// Close closes cache and database connections
 func (svc ItemCatalogService) Close() {
 	err := svc.CacheFinder.Close()
 	if err != nil {

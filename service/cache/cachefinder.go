@@ -3,7 +3,6 @@ package cache
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 
 	"github.com/go-kit/kit/log"
 
@@ -43,7 +42,6 @@ func (cacheFinder RedisCacheFinder) Initialize(connUrl string, logger log.Logger
 }
 
 func (cacheFinder RedisCacheFinder) Close() error {
-	fmt.Println("Inside redis cache Close")
 
 	err := cacheFinder.redisClient.Close()
 	if err != nil {
@@ -55,9 +53,10 @@ func (cacheFinder RedisCacheFinder) Close() error {
 
 //FindItemInCache retrieves item from redis cache
 func (cacheFinder RedisCacheFinder) FindItemInCache(productID string) (common.ProductDetails, error) {
-	fmt.Println("Inside redis cache finder")
 	val, _ := cacheFinder.redisClient.Get(productID).Result()
-	fmt.Printf("val inside cache finder:%s", val)
+
+	cacheFinder.logger.Log("val", val)
+
 	if val == "" {
 		return common.ProductDetails{}, errors.New("Missing Key")
 	}
@@ -77,6 +76,7 @@ func (cacheFinder RedisCacheFinder) FindItemInCache(productID string) (common.Pr
 //FindItemInCache retrieves item from redis cache
 func (cacheFinder RedisCacheFinder) PutItemInCache(productID string, productDetails common.ProductDetails) error {
 	res, err := json.Marshal(productDetails)
+
 	if err != nil {
 		return err
 	}
@@ -89,9 +89,4 @@ func (cacheFinder RedisCacheFinder) PutItemInCache(productID string, productDeta
 
 	return nil
 
-	// if ProductID == "a123" {
-	// 	return common.ProductDetails{ProdID: "a123", ProdName: "iPhone", ProdDesc: "new iPhone", Quantity: 10}, nil
-	// } else {
-	// 	return common.ProductDetails{}, nil
-	// }
 }

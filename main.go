@@ -56,6 +56,7 @@ func main() {
 	http.Handle("/add-item", addItemHandler)
 	// http.Handle("/metrics", promhttp.Handler())
 
+	dao.FindAll()
 	errs := make(chan error, 2)
 
 	go func() {
