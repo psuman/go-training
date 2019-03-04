@@ -1,8 +1,7 @@
-ts=2019-03-04T15:21:16.822078225Z transport=http address=:9090 msg=listening
-ts=2019-03-04T15:21:37.409021439Z req=a101001
-ts=2019-03-04T15:21:37.40933423Z val="{\"ProdID\":\"a101001\",\"Name\":\"dfgdg\",\"Desc\":\"dfg\",\"Quantity\":10}"
-ts=2019-03-04T15:21:37.409496456Z ITEM_FOUND_IN_CACHE=a101001
-ts=2019-03-04T15:21:48.467342508Z req=a101001
-ts=2019-03-04T15:21:48.467572454Z val="{\"ProdID\":\"a101001\",\"Name\":\"dfgdg\",\"Desc\":\"dfg\",\"Quantity\":10}"
-ts=2019-03-04T15:21:48.467613947Z ITEM_FOUND_IN_CACHE=a101001
-ts=2019-03-04T15:25:18.939668254Z terminated=interrupt
+ts=2019-03-04T16:27:47.041038748Z transport=http address=:9090 msg=listening
+ts=2019-03-04T16:27:55.919195844Z req=ext123
+ts=2019-03-04T16:27:55.919810595Z val=
+ts=2019-03-04T16:27:55.920186551Z ProdID=ext123
+ts=2019-03-04T16:27:55.921706294Z dao_error="mongo: no documents in result"
+ts=2019-03-04T16:27:55.92173447Z ITEM_LOADED_FROM_DB=
+ts=2019-03-04T16:28:04.820706468Z terminated=interrupt

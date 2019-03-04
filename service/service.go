@@ -9,6 +9,8 @@ import (
 	cache "github.com/psuman/go-training/service/cache"
 	common "github.com/psuman/go-training/service/common"
 
+	external_invoker "github.com/psuman/go-training/service/external_invoker"
+
 	persistence "github.com/psuman/go-training/service/persistence"
 
 	"github.com/go-kit/kit/metrics"
@@ -61,6 +63,7 @@ type ItemService interface {
 type ItemCatalogService struct {
 	CacheFinder cache.CacheFinder
 	ItemDao     persistence.ItemDao
+	ExtService  external_invoker.ExternalFindItemServiceInvoker
 	Logger      log.Logger
 }
 
@@ -92,7 +95,15 @@ func (svc ItemCatalogService) FindItem(req findItemRequest) findItemResponse {
 		svc.Logger.Log("ITEM_LOADED_FROM_DB", itemFromDb.ProdID)
 
 		if err != nil {
-			return findItemResponse{Err: "Product not found"}
+			extReq := external_invoker.ExternalFindItemRequest{ProdID: req.ProdID}
+
+			extRes, err := svc.ExtService.Invoke(extReq)
+
+			if err != nil {
+				return findItemResponse{Err: "Product not found"}
+			}
+
+			return findItemResponse{ProdDetails: extRes.ProdDetails}
 		}
 
 		svc.CacheFinder.PutItemInCache(req.ProdID, itemFromDb)

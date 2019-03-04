@@ -14,6 +14,8 @@ import (
 
 	service "github.com/psuman/go-training/service"
 
+	external_invoker "github.com/psuman/go-training/service/external_invoker"
+
 	"github.com/go-kit/kit/log"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -62,8 +64,12 @@ func main() {
 	dao := persistence.MongoItemDao{}
 	dao = dao.Initialize("mongodb://localhost:27017", logger)
 
+	httpClient := &http.Client{}
+
+	extSvc := external_invoker.ExternalFindItemServiceInvokerImpl{ServiceUrl: "http://localhost:7070/find-ext-item", Timeout: 10, HttpClient: httpClient}
+
 	svc = service.ItemCatalogService{CacheFinder: cacheFinder,
-		ItemDao: dao, Logger: logger}
+		ItemDao: dao, ExtService: extSvc, Logger: logger}
 
 	svc = service.MetricsMiddleware{requestCount, requestLatency, svc}
 
