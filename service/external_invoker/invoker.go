@@ -23,9 +23,13 @@ type ExternalFindItemServiceInvoker interface {
 }
 
 type ExternalFindItemServiceInvokerImpl struct {
-	ServiceUrl string
-	Timeout    int32
-	HttpClient *http.Client
+	serviceUrl string
+	httpClient *http.Client
+}
+
+func (invoker ExternalFindItemServiceInvokerImpl) Initialize(serviceUrl string) ExternalFindItemServiceInvoker {
+	httpClient := &http.Client{}
+	return ExternalFindItemServiceInvokerImpl{serviceUrl: serviceUrl, httpClient: httpClient}
 }
 
 func (invoker ExternalFindItemServiceInvokerImpl) Invoke(req ExternalFindItemRequest) (ExternalFindItemResponse, error) {
@@ -36,10 +40,10 @@ func (invoker ExternalFindItemServiceInvokerImpl) Invoke(req ExternalFindItemReq
 		return ExternalFindItemResponse{}, err
 	}
 
-	httpReq, err := http.NewRequest("POST", invoker.ServiceUrl, bytes.NewBuffer([]byte(reqPayload)))
+	httpReq, err := http.NewRequest("POST", invoker.serviceUrl, bytes.NewBuffer([]byte(reqPayload)))
 	httpReq.Header.Set("Content-Type", "application/json")
 
-	resp, err := invoker.HttpClient.Do(httpReq)
+	resp, err := invoker.httpClient.Do(httpReq)
 
 	if err != nil {
 		return ExternalFindItemResponse{}, err

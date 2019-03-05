@@ -64,9 +64,9 @@ func main() {
 	dao := persistence.MongoItemDao{}
 	dao = dao.Initialize("mongodb://localhost:27017", logger)
 
-	httpClient := &http.Client{}
+	extSvcInvoker := external_invoker.ExternalFindItemServiceInvokerImpl{}
 
-	extSvc := external_invoker.ExternalFindItemServiceInvokerImpl{ServiceUrl: "http://localhost:7070/find-ext-item", Timeout: 10, HttpClient: httpClient}
+	extSvc := extSvcInvoker.Initialize("http://localhost:7070/find-ext-item")
 
 	svc = service.ItemCatalogService{CacheFinder: cacheFinder,
 		ItemDao: dao, ExtService: extSvc, Logger: logger}
