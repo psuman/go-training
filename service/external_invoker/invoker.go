@@ -3,7 +3,6 @@ package external_invoker
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -11,7 +10,7 @@ import (
 )
 
 type ExternalFindItemRequest struct {
-	ProdID string
+	ProdID string `json:"productId"`
 }
 
 type ExternalFindItemResponse struct {
@@ -30,13 +29,20 @@ type ExternalFindItemServiceInvokerImpl struct {
 }
 
 func (invoker ExternalFindItemServiceInvokerImpl) Invoke(req ExternalFindItemRequest) (ExternalFindItemResponse, error) {
-	var jsonStr = fmt.Sprintf("{'productId':'%s'}", req.ProdID)
-	httpReq, err := http.NewRequest("POST", invoker.ServiceUrl, bytes.NewBuffer([]byte(jsonStr)))
+
+	reqPayload, err := json.Marshal(req)
+
+	if err != nil {
+		return ExternalFindItemResponse{}, err
+	}
+
+	httpReq, err := http.NewRequest("POST", invoker.ServiceUrl, bytes.NewBuffer([]byte(reqPayload)))
 	httpReq.Header.Set("Content-Type", "application/json")
 
 	resp, err := invoker.HttpClient.Do(httpReq)
+
 	if err != nil {
-		panic(err)
+		return ExternalFindItemResponse{}, err
 	}
 
 	defer resp.Body.Close()
@@ -46,7 +52,7 @@ func (invoker ExternalFindItemServiceInvokerImpl) Invoke(req ExternalFindItemReq
 	var responseObj ExternalFindItemResponse
 
 	if err := json.Unmarshal([]byte(body), &responseObj); err != nil {
-		panic(err)
+		return ExternalFindItemResponse{}, err
 	}
 
 	return responseObj, nil
