@@ -92,7 +92,6 @@ func (svc ItemCatalogService) FindItem(req findItemRequest) findItemResponse {
 
 	if err != nil {
 		itemFromDb, err := svc.ItemDao.FindItem(req.ProdID)
-		svc.Logger.Log("ITEM_LOADED_FROM_DB", itemFromDb.ProdID)
 
 		if err != nil {
 			extReq := external_invoker.ExternalFindItemRequest{ProdID: req.ProdID}
@@ -103,8 +102,12 @@ func (svc ItemCatalogService) FindItem(req findItemRequest) findItemResponse {
 				return findItemResponse{Err: "Product not found"}
 			}
 
+			svc.Logger.Log("ITEM_LOADED_FROM_EXT_SVC", extRes.ProdDetails.ProdID)
+
 			return findItemResponse{ProdDetails: extRes.ProdDetails}
 		}
+
+		svc.Logger.Log("ITEM_LOADED_FROM_DB", itemFromDb.ProdID)
 
 		svc.CacheFinder.PutItemInCache(req.ProdID, itemFromDb)
 		return findItemResponse{ProdDetails: itemFromDb}
